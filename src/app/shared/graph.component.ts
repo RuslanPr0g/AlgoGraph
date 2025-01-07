@@ -42,15 +42,20 @@ export class GraphComponent implements OnInit {
   private updateData(): void {
     this.nodes = this.graphDataService.getGraphNodes();
 
-    this.nodes.forEach((node) => {
-      const savedPosition = this.savedPositions[node.id];
-      if (savedPosition) {
-        node.x = savedPosition.x;
-        node.y = savedPosition.y;
-      } else {
-        node.x = Math.random() * this.width;
-        node.y = Math.random() * this.height;
-      }
+    const centerX = this.width / 2;
+    const centerY = this.height / 2;
+
+    const maxRadius = Math.min(this.width, this.height) / 2 - 50;
+    const angleStep = (2 * Math.PI) / this.nodes.length;
+
+    this.nodes.forEach((node, index) => {
+      const radius = (index / this.nodes.length) * maxRadius;
+      const angle = index * angleStep;
+
+      node.x = centerX + radius * Math.cos(angle);
+      node.y = centerY + radius * Math.sin(angle);
+
+      this.savedPositions[node.id] = { x: node.x, y: node.y };
     });
 
     this.links = this.graphDataService.getLinks(this.nodes);
@@ -104,7 +109,7 @@ export class GraphComponent implements OnInit {
         d3
           .forceLink(links)
           .id((d: any) => d.id)
-          .distance((d: any) => (d.source.type === 'parent' ? 500 : 100))
+          .distance((d: any) => (d.source.type === 'parent' ? 500 : 50))
       )
       .force('charge', d3.forceManyBody().strength(-200))
       .force('center', d3.forceCenter(this.width / 2, this.height / 2));
@@ -143,7 +148,7 @@ export class GraphComponent implements OnInit {
             d3
               .forceLink(this.links)
               .id((d: any) => d.id)
-              .distance((d: any) => (d.source.type === 'parent' ? 500 : 100))
+              .distance((d: any) => (d.source.type === 'parent' ? 500 : 50))
           );
           this.simulation?.alpha(1).restart();
           this.expandedNodes.clear();
@@ -160,19 +165,24 @@ export class GraphComponent implements OnInit {
       node.name
     );
 
-    const newGraphNodes = relatedProblems.map(
-      (child, index) =>
-        ({
-          id: this.nodes.length + index,
-          name: child.name,
-          type: child.type,
-          x: node?.x ?? 0 + (Math.random() * 100 - 50),
-          y: node?.y ?? 0 + (Math.random() * 100 - 50),
-          difficulty: node.id + 1,
-          problem: child.problem,
-          parentNode: node,
-        } as GraphNode)
-    );
+    const numNewNodes = relatedProblems.length;
+    const radius = 400;
+    const angleStep = (2 * Math.PI) / numNewNodes;
+
+    const newGraphNodes = relatedProblems.map((child, index) => {
+      const angle = index * angleStep;
+
+      return {
+        id: this.nodes.length + index,
+        name: child.name,
+        type: child.type,
+        x: node?.x ?? 0 + radius * Math.cos(angle),
+        y: node?.y ?? 0 + radius * Math.sin(angle),
+        difficulty: node.id + 1,
+        problem: child.problem,
+        parentNode: node,
+      } as GraphNode;
+    });
 
     const newLinks = newGraphNodes.map(
       (newNode) =>
@@ -194,7 +204,7 @@ export class GraphComponent implements OnInit {
       d3
         .forceLink(this.links)
         .id((d: any) => d.id)
-        .distance((d: any) => (d.source.type === 'parent' ? 500 : 100))
+        .distance((d: any) => (d.source.type === 'parent' ? 500 : 50))
     );
     this.simulation?.alpha(1).restart();
   }
