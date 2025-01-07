@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
   selector: 'app-primary-button',
   standalone: true,
@@ -9,4 +9,9 @@ import { Component, Input } from '@angular/core';
 })
 export class PrimaryButtonComponent {
   @Input({ required: true }) text!: string;
+  @Output() clicked = new EventEmitter();
+
+  click(): void {
+    this.clicked.emit();
+  }
 }

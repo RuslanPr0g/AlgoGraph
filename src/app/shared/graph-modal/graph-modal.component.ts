@@ -42,4 +42,13 @@ export class GraphModalComponent {
   close() {
     this.dialogRef.close();
   }
+
+  goSolve(): void {
+    const url = this.node().problem?.url;
+    console.warn(url);
+
+    if (url) {
+      window.open(url, '_blank');
+    }
+  }
 }
