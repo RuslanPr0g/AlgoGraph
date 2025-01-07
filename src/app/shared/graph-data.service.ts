@@ -34,11 +34,18 @@ export class GraphDataService {
   }
 
   getProblemsForTopic(topic: string): GraphNode[] {
-    const problems = this.problemService.problems[topic];
+    let problems = this.problemService.problems[topic];
 
     if (!problems || problems?.length === 0) {
       return [];
     }
+
+    const solvedProblems = this.problemService.getSolvedProblems();
+
+    problems = problems.map((p) => ({
+      ...p,
+      status: solvedProblems.includes(p.number) ? 'done' : 'todo',
+    }));
 
     return problems.map((problem) => ({
       id: parseFloat(problem.number),

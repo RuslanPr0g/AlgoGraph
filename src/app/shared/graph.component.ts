@@ -179,7 +179,9 @@ export class GraphComponent implements OnInit {
 
     const getColorForNode = (node: GraphNode) => {
       return node.type === 'child'
-        ? '#727D73'
+        ? node.problem?.status === 'todo'
+          ? '#727D73'
+          : '#1f4529'
         : colorScale?.(node.id) || '#1f77b4';
     };
 
