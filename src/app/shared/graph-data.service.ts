@@ -44,7 +44,7 @@ export class GraphDataService {
 
     return problems.map((problem, index) => ({
       id: index,
-      name: problem,
+      name: problem.name,
       type: 'child',
     }));
   }
