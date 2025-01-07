@@ -3,3 +3,17 @@
 * {
   font-family: "Press Start 2P", monospace;
 }
+
+.center {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.error {
+  color: #d91656 !important;
+
+  * {
+    color: #d91656 !important;
+  }
+}
