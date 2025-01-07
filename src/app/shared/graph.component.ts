@@ -132,7 +132,7 @@ export class GraphComponent implements OnInit {
           node,
         },
         width: '70%',
-        height: '40%',
+        height: '50%',
       });
 
       dialogRef
