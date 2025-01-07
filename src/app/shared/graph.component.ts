@@ -107,7 +107,6 @@ export class GraphComponent implements OnInit {
 
           this.updateGraph(this.graphContainer.nativeElement, this.colorScale);
 
-          // Restart simulation to apply updates
           this.simulation?.nodes(this.nodes as any);
           this.simulation?.force(
             'link',
