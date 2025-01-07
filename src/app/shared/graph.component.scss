@@ -1,0 +1,28 @@
+::ng-deep html,
+body,
+div {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #121212;
+  color: white;
+  margin: 0;
+}
+
+svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.node {
+  cursor: pointer;
+}
+
+.link {
+  stroke-width: 2px;
+}
+
+.node:hover {
+  fill: #ff5722;
+}

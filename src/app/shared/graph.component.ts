@@ -7,7 +7,7 @@ import { Link, Node } from './models';
   selector: 'app-graph',
   standalone: true,
   templateUrl: './graph.component.html',
-  styleUrls: ['./graph.component.css'],
+  styleUrls: ['./graph.component.scss'],
 })
 export class GraphComponent implements OnInit {
   @ViewChild('graphContainer', { static: true })
