@@ -20,6 +20,7 @@ export class GraphComponent implements OnInit {
 
   nodes: GraphNode[] = [];
   links: Link[] = [];
+  savedPositions: Record<number, { x: number; y: number }> = {}; // Keeps track of node positions
   width: number = window.innerWidth;
   height: number = window.innerHeight;
 
@@ -40,6 +41,18 @@ export class GraphComponent implements OnInit {
 
   private updateData(): void {
     this.nodes = this.graphDataService.getGraphNodes();
+
+    this.nodes.forEach((node) => {
+      const savedPosition = this.savedPositions[node.id];
+      if (savedPosition) {
+        node.x = savedPosition.x;
+        node.y = savedPosition.y;
+      } else {
+        node.x = Math.random() * this.width;
+        node.y = Math.random() * this.height;
+      }
+    });
+
     this.links = this.graphDataService.getLinks(this.nodes);
   }
 
@@ -294,5 +307,9 @@ export class GraphComponent implements OnInit {
     if (!event.active) simulation.alphaTarget(0);
     d.fx = null;
     d.fy = null;
+
+    if (d.x !== undefined && d.y !== undefined) {
+      this.savedPositions[d.id] = { x: d.x, y: d.y };
+    }
   }
 }
