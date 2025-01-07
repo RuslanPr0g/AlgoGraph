@@ -117,14 +117,15 @@ export class GraphComponent implements OnInit {
     this.updateGraph(container, this.colorScale);
   }
 
+  private rebuildGraph(node: GraphNode, container: HTMLElement): void {
+    this.collapseNodes();
+    this.expandNode(node);
+    this.updateGraph(container, this.colorScale);
+  }
+
   private onGraphNodeClick(node: GraphNode, container: HTMLElement): void {
     if (node.type === 'parent') {
-      if (this.expandedNodes.has(node.id)) {
-        this.collapseNode(node);
-      } else {
-        this.expandNode(node);
-      }
-      this.updateGraph(container, this.colorScale);
+      this.rebuildGraph(node, container);
     } else {
       const dialogRef = this.dialog.open(GraphModalComponent, {
         data: {
@@ -140,8 +141,6 @@ export class GraphComponent implements OnInit {
         .subscribe(() => {
           this.updateData();
 
-          this.updateGraph(this.graphContainer.nativeElement, this.colorScale);
-
           this.simulation?.nodes(this.nodes as any);
           this.simulation?.force(
             'link',
@@ -151,11 +150,8 @@ export class GraphComponent implements OnInit {
               .distance((d: any) => (d.source.type === 'parent' ? 500 : 50))
           );
           this.simulation?.alpha(1).restart();
-          this.expandedNodes.clear();
 
-          if (node.parentNode) {
-            this.onGraphNodeClick(node.parentNode, container);
-          }
+          this.updateGraph(container, this.colorScale);
         });
     }
   }
@@ -184,15 +180,17 @@ export class GraphComponent implements OnInit {
       } as GraphNode;
     });
 
-    const newLinks = newGraphNodes.map(
+    const graphNodesToLink = newGraphNodes;
+
+    const newLinks = graphNodesToLink.map(
       (newNode) =>
         ({
-          source: node.id,
-          target: newNode.id,
+          source: node,
+          target: newNode,
         } as Link)
     );
 
-    this.nodes = [...this.nodes, ...newGraphNodes];
+    this.nodes = [...this.nodes, ...graphNodesToLink];
     this.links = [...this.links, ...newLinks];
     this.expandedNodes.add(node.id);
 
@@ -209,21 +207,12 @@ export class GraphComponent implements OnInit {
     this.simulation?.alpha(1).restart();
   }
 
-  private collapseNode(node: GraphNode): void {
-    const connectedLinks = this.links.filter(
-      (link) => link.source === node.id || link.target === node.id
-    );
-
-    const connectedNodeIds = connectedLinks.map((link) =>
-      link.source === node.id ? link.target : link.source
-    ) as number[];
-
-    this.nodes = this.nodes.filter((n) => !connectedNodeIds.includes(n.id));
+  private collapseNodes(): void {
     this.links = this.links.filter(
-      (link) => link.source !== node.id && link.target !== node.id
+      (l) => l.source.type === 'parent' && l.target.type === 'parent'
     );
-
-    this.updateGraph(this.graphContainer.nativeElement, this.colorScale);
+    this.nodes = this.nodes.filter((n) => n.type === 'parent');
+    this.expandedNodes.clear();
   }
 
   private updateGraph(

@@ -26,7 +26,7 @@ export class GraphDataService {
     return nodes
       .map((node, index) => {
         if (index < nodes.length - 1) {
-          return { source: node.id, target: nodes[index + 1].id };
+          return { source: node, target: nodes[index + 1] };
         }
         return null;
       })

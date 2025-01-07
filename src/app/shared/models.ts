@@ -7,8 +7,8 @@ export interface GraphNode extends d3.SimulationNodeDatum {
 }
 
 export interface Link {
-  source: number;
-  target: number;
+  source: GraphNode;
+  target: GraphNode;
 }
 
 export interface Problem {
