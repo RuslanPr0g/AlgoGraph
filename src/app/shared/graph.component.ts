@@ -86,12 +86,16 @@ export class GraphComponent implements OnInit {
       }
       this.updateGraph(container, this.colorScale);
     } else {
-      this.dialog.open(GraphModalComponent, {
+      const dialogRef = this.dialog.open(GraphModalComponent, {
         data: {
           node,
         },
         width: '70%',
         height: '40%',
+      });
+
+      dialogRef.afterClosed().subscribe(() => {
+        this.updateGraph(this.graphContainer.nativeElement, this.colorScale);
       });
     }
   }

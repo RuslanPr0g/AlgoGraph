@@ -2,7 +2,7 @@ import { Component, inject, Input, model } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
-import { GraphNode } from '../models';
+import { GraphNode, Problem } from '../models';
 import { CommonModule } from '@angular/common';
 import {
   MAT_DIALOG_DATA,
@@ -58,6 +58,7 @@ export class GraphModalComponent {
     const problemNumber = this.node().problem?.number;
     if (problemNumber) {
       this.problemService.addSolvedProblem(problemNumber);
+      this.updateProblemStatus('done');
     }
     this.close();
   }
@@ -66,6 +67,18 @@ export class GraphModalComponent {
     const problemNumber = this.node().problem?.number;
     if (problemNumber) {
       this.problemService.removeSolvedProblem(problemNumber);
+      this.updateProblemStatus('todo');
     }
+  }
+
+  private updateProblemStatus(status: 'todo' | 'done'): void {
+    const node = this.node();
+    this.node.set({
+      ...node,
+      problem: {
+        ...node.problem,
+        status: status,
+      } as Problem,
+    });
   }
 }
