@@ -1,6 +1,9 @@
-<mat-dialog-content>
-  <p>
-    Objective: <strong>{{ node().name }}</strong>
+<mat-dialog-content *ngIf="node().problem">
+  <p class="center font-big">
+    {{ node().problem?.name }}
+  </p>
+  <p class="center">
+    <strong>{{ node().problem?.difficulty }}</strong>
   </p>
 </mat-dialog-content>
 <mat-dialog-actions>

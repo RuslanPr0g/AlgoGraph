@@ -86,7 +86,6 @@ export class GraphComponent implements OnInit {
       }
       this.updateGraph(container, this.colorScale);
     } else {
-      console.warn(node);
       this.dialog.open(GraphModalComponent, {
         data: {
           node,

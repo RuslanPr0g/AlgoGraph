@@ -37,10 +37,6 @@ export class GraphModalComponent {
   readonly data = inject<GraphDialogData>(MAT_DIALOG_DATA);
   readonly node = model(this.data.node);
 
-  ngOnInit(): void {
-    console.warn(this.node());
-  }
-
   close() {
     this.dialogRef.close();
   }
