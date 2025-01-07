@@ -1,10 +1,36 @@
 import { Injectable } from '@angular/core';
 import { Problem } from './models';
+import { LocalStorageService } from '../common/services/local-storage.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProblemService {
+  private solvedProblemsKey = 'solvedProblems';
+
+  constructor(private localStorageService: LocalStorageService) {}
+
+  getSolvedProblems(): string[] {
+    const solvedProblems = this.localStorageService.get<string[]>(
+      this.solvedProblemsKey
+    );
+    return solvedProblems ?? [];
+  }
+
+  addSolvedProblem(problemId: string): void {
+    const solvedProblems = this.getSolvedProblems();
+    if (!solvedProblems.includes(problemId)) {
+      solvedProblems.push(problemId);
+      this.localStorageService.save(this.solvedProblemsKey, solvedProblems);
+    }
+  }
+
+  removeSolvedProblem(problemId: string): void {
+    let solvedProblems = this.getSolvedProblems();
+    solvedProblems = solvedProblems.filter((problem) => problem !== problemId);
+    this.localStorageService.save(this.solvedProblemsKey, solvedProblems);
+  }
+
   topics: string[] = [
     'Arrays & Strings',
     'Hashmaps & Sets',

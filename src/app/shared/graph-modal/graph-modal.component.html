@@ -3,13 +3,28 @@
     {{ node().problem?.name }}
   </p>
   <p class="center">
-    <strong>{{ node().problem?.difficulty }}</strong>
+    <i>{{ node().problem?.difficulty }}</i
+    >&nbsp;difficulty
   </p>
   <br />
   <app-primary-button
     [text]="'GO SOLVE!'"
     (clicked)="goSolve()"
   ></app-primary-button>
+  <br />
+  <ng-container *ngIf="node().problem?.status === 'todo'; else solved">
+    <div class="center secondary">
+      <button mat-button type="button" (click)="solve()">Mark as solved</button>
+    </div>
+  </ng-container>
+  <ng-template #solved>
+    <div class="center success">
+      <button mat-button type="button" (click)="unsolve()">
+        Wait.. I didn't solve it
+      </button>
+    </div>
+  </ng-template>
+  <br />
 </mat-dialog-content>
 <mat-dialog-actions>
   <div class="center error">

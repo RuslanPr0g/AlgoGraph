@@ -11,7 +11,8 @@ import {
   MatDialogContent,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { PrimaryButtonComponent } from '../../common/primary-button/primary-button.component';
+import { PrimaryButtonComponent } from '../../common/components/primary-button/primary-button.component';
+import { ProblemService } from '../problem.service';
 
 export interface GraphDialogData {
   node: GraphNode;
@@ -35,6 +36,7 @@ export interface GraphDialogData {
   ],
 })
 export class GraphModalComponent {
+  readonly problemService = inject(ProblemService);
   readonly dialogRef = inject(MatDialogRef<GraphModalComponent>);
   readonly data = inject<GraphDialogData>(MAT_DIALOG_DATA);
   readonly node = model(this.data.node);
@@ -49,6 +51,21 @@ export class GraphModalComponent {
 
     if (url) {
       window.open(url, '_blank');
+    }
+  }
+
+  solve(): void {
+    const problemNumber = this.node().problem?.number;
+    if (problemNumber) {
+      this.problemService.addSolvedProblem(problemNumber);
+    }
+    this.close();
+  }
+
+  unsolve(): void {
+    const problemNumber = this.node().problem?.number;
+    if (problemNumber) {
+      this.problemService.removeSolvedProblem(problemNumber);
     }
   }
 }

@@ -17,3 +17,19 @@
     color: #d91656 !important;
   }
 }
+
+.success {
+  color: #1f4529 !important;
+
+  * {
+    color: #1f4529 !important;
+  }
+}
+
+.secondary {
+  color: #d3f1df !important;
+
+  * {
+    color: #d3f1df !important;
+  }
+}
