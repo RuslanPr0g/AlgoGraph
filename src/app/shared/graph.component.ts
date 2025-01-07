@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { Link, TopicNode } from './models';
+import { Link, TopicNode, Node } from './models';
 import { GraphDataService } from './graph-data.service';
 
 @Component({
@@ -87,6 +87,7 @@ export class GraphComponent implements OnInit {
         ({
           id: this.nodes.length + index, // Ensure unique IDs
           topic: problem.name,
+          type: problem.type,
           x: node.x, // Start new nodes near the clicked node
           y: node.y,
           difficulty: node.difficulty + 1, // Increase difficulty for new nodes
@@ -145,6 +146,16 @@ export class GraphComponent implements OnInit {
         (exit) => exit.remove()
       );
 
+    const getColorForNode = (node: TopicNode) => {
+      return node.type === 'child'
+        ? '#727D73'
+        : colorScale?.(node.difficulty) || '#1f77b4';
+    };
+
+    const getSizeForNode = (node: TopicNode) => {
+      return node.type === 'child' ? 20 : 25;
+    };
+
     const nodeSelection = svg
       .selectAll('.node')
       .data(this.nodes)
@@ -153,8 +164,8 @@ export class GraphComponent implements OnInit {
           enter
             .append('circle')
             .attr('class', 'node')
-            .attr('r', 20)
-            .attr('fill', (d: any) => colorScale?.(d.difficulty) || '#1f77b4')
+            .attr('r', (d: any) => getSizeForNode(d))
+            .attr('fill', (d: any) => getColorForNode(d))
             .attr('cursor', 'pointer')
             .call(
               d3
@@ -168,11 +179,7 @@ export class GraphComponent implements OnInit {
                 )
             )
             .on('click', (event, d) => this.onTopicNodeClick(d, container)),
-        (update) =>
-          update.attr(
-            'fill',
-            (d: any) => colorScale?.(d.difficulty) || '#1f77b4'
-          ),
+        (update) => update.attr('fill', (d: any) => getColorForNode(d)),
         (exit) => exit.remove()
       );
 
