@@ -1,7 +1,7 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { GraphService } from './graph.service';
-import { Link, Node, TopicNode } from './models';
+import { Link, TopicNode } from './models';
+import { GraphDataService } from './graph-data.service';
 
 @Component({
   selector: 'app-graph',
@@ -23,14 +23,11 @@ export class GraphComponent implements OnInit {
 
   private expandedNodes = new Set<number>(); // Tracks expanded nodes
 
-  constructor(private graphService: GraphService) {}
+  constructor(private graphDataService: GraphDataService) {}
 
   ngOnInit(): void {
-    this.nodes = this.graphService.getTopicNodes().map((node, index) => ({
-      ...node,
-      difficulty: index, // Assign difficulty based on order or any logic
-    }));
-    this.links = this.graphService.getLinks(this.nodes);
+    this.nodes = this.graphDataService.getTopicNodes();
+    this.links = this.graphDataService.getLinks(this.nodes);
     this.createGraph(this.nodes, this.links, this.graphContainer.nativeElement);
   }
 
@@ -77,48 +74,59 @@ export class GraphComponent implements OnInit {
   }
 
   private expandNode(node: TopicNode): void {
-    const relatedProblems = this.graphService.getProblemsForTopic(node.topic);
-  
-    const newTopicNodes = relatedProblems.map((problem, index) => ({
-      id: this.nodes.length + index, // Ensure unique IDs
-      topic: problem.name,
-      x: node.x, // Start new nodes near the clicked node
-      y: node.y,
-      difficulty: node.difficulty + 1, // Increase difficulty for new nodes
-    } as TopicNode));
-  
-    const newLinks = newTopicNodes.map((newNode) => ({
-      source: node.id,
-      target: newNode.id,
-    } as Link));
-  
+    const relatedProblems = this.graphDataService.getProblemsForTopic(
+      node.topic
+    );
+
+    const newTopicNodes = relatedProblems.map(
+      (problem, index) =>
+        ({
+          id: this.nodes.length + index, // Ensure unique IDs
+          topic: problem.name,
+          x: node.x, // Start new nodes near the clicked node
+          y: node.y,
+          difficulty: node.difficulty + 1, // Increase difficulty for new nodes
+        } as TopicNode)
+    );
+
+    const newLinks = newTopicNodes.map(
+      (newNode) =>
+        ({
+          source: node.id,
+          target: newNode.id,
+        } as Link)
+    );
+
     this.nodes = [...this.nodes, ...newTopicNodes];
     this.links = [...this.links, ...newLinks];
     this.expandedNodes.add(node.id);
     this.updateGraph(this.graphContainer.nativeElement, this.colorScale); // Re-render the graph to update colors
   }
-  
+
   private collapseNode(node: TopicNode): void {
     const connectedLinks = this.links.filter(
       (link) => link.source === node.id || link.target === node.id
     );
-  
+
     const connectedNodeIds = connectedLinks.map((link) =>
       link.source === node.id ? link.target : link.source
     ) as number[];
-  
+
     this.nodes = this.nodes.filter((n) => !connectedNodeIds.includes(n.id));
     this.links = this.links.filter(
       (link) => link.source !== node.id && link.target !== node.id
     );
-  
+
     // this.expandedNodes.delete(node.id);
     this.updateGraph(this.graphContainer.nativeElement, this.colorScale); // Re-render the graph to update colors
   }
-  
-  private updateGraph(container: HTMLElement, colorScale?: d3.ScaleLinear<string, string>): void {
+
+  private updateGraph(
+    container: HTMLElement,
+    colorScale?: d3.ScaleLinear<string, string>
+  ): void {
     const svg = d3.select(container).select('svg');
-  
+
     const link = svg
       .selectAll('.link')
       .data(this.links)
@@ -133,10 +141,6 @@ export class GraphComponent implements OnInit {
         (exit) => exit.remove()
       );
 
-      console.warn(colorScale?.(4));
-      console.warn(colorScale?.(5));
-      console.warn(colorScale);
-
     const nodeSelection = svg
       .selectAll('.node')
       .data(this.nodes)
@@ -146,25 +150,28 @@ export class GraphComponent implements OnInit {
             .append('circle')
             .attr('class', 'node')
             .attr('r', 20)
-            .attr('fill', (d: any) => colorScale?.(d.difficulty) || '#1f77b4') // Apply color scale based on difficulty
+            .attr('fill', (d: any) => colorScale?.(d.difficulty) || '#1f77b4')
             .attr('cursor', 'pointer')
             .call(
               d3
                 .drag<SVGCircleElement, TopicNode>()
                 .on('start', (event, d) =>
-                  this.graphService.dragStarted(event, d, this.simulation)
+                  this.dragStarted(event, d, this.simulation)
                 )
-                .on('drag', (event, d) => this.graphService.dragging(event, d))
+                .on('drag', (event, d) => this.dragging(event, d))
                 .on('end', (event, d) =>
-                  this.graphService.dragEnded(event, d, this.simulation)
+                  this.dragEnded(event, d, this.simulation)
                 )
             )
             .on('click', (event, d) => this.onTopicNodeClick(d, container)),
         (update) =>
-          update.attr('fill', (d: any) => colorScale?.(d.difficulty) || '#1f77b4'),
+          update.attr(
+            'fill',
+            (d: any) => colorScale?.(d.difficulty) || '#1f77b4'
+          ),
         (exit) => exit.remove()
       );
-  
+
     const labels = svg
       .selectAll('.node-label')
       .data(this.nodes)
@@ -184,7 +191,7 @@ export class GraphComponent implements OnInit {
         (update) => update,
         (exit) => exit.remove()
       );
-  
+
     this.simulation?.nodes(this.nodes as any);
     this.simulation?.force(
       'link',
@@ -194,18 +201,34 @@ export class GraphComponent implements OnInit {
         .distance(150)
     );
     this.simulation?.alpha(1).restart();
-  
+
     this.simulation?.on('tick', () => {
       link
         .attr('x1', (d: any) => d.source.x)
         .attr('y1', (d: any) => d.source.y)
         .attr('x2', (d: any) => d.target.x)
         .attr('y2', (d: any) => d.target.y);
-  
+
       nodeSelection.attr('cx', (d: any) => d.x).attr('cy', (d: any) => d.y);
-  
+
       labels.attr('x', (d: any) => d.x + 25).attr('y', (d: any) => d.y + 5);
     });
   }
-  
+
+  dragStarted(event: any, d: any, simulation: any): void {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+  dragging(event: any, d: any): void {
+    d.fx = event.x;
+    d.fy = event.y;
+  }
+
+  dragEnded(event: any, d: any, simulation: any): void {
+    if (!event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  }
 }
