@@ -25,7 +25,7 @@ export class GraphComponent implements OnInit {
   simulation?: d3.Simulation<d3.SimulationNodeDatum, undefined>;
   private colorScale?: d3.ScaleLinear<string, string, never>;
 
-  private expandedNodes = new Set<number>(); // Tracks expanded nodes
+  private expandedNodes = new Set<number>();
 
   constructor(
     private graphDataService: GraphDataService,
@@ -52,16 +52,15 @@ export class GraphComponent implements OnInit {
       .call(
         d3
           .zoom()
-          .scaleExtent([0.1, 10]) // Define the zoom limits
-          .on('zoom', (event) => svg.attr('transform', event.transform)) as any // Apply zoom and pan transformation
+          .scaleExtent([0.1, 10])
+          .on('zoom', (event) => svg.attr('transform', event.transform)) as any
       )
-      .append('g'); // Add group to apply transformations to
+      .append('g');
 
-    // Create a color scale for difficulty
     this.colorScale = d3
       .scaleLinear<string>()
       .domain([0, nodes.length - 1])
-      .range(['#ADD8E6', '#00008B']); // Light blue to dark blue
+      .range(['#ADD8E6', '#00008B']);
 
     this.simulation = d3
       .forceSimulation(nodes as any)
@@ -70,7 +69,7 @@ export class GraphComponent implements OnInit {
         d3
           .forceLink(links)
           .id((d: any) => d.id)
-          .distance(150)
+          .distance((d: any) => (d.source.type === 'parent' ? 300 : 100))
       )
       .force('charge', d3.forceManyBody().strength(-200))
       .force('center', d3.forceCenter(this.width / 2, this.height / 2));
@@ -105,12 +104,12 @@ export class GraphComponent implements OnInit {
     const newTopicNodes = relatedProblems.map(
       (problem, index) =>
         ({
-          id: this.nodes.length + index, // Ensure unique IDs
+          id: this.nodes.length + index,
           topic: problem.name,
           type: problem.type,
-          x: node?.x ?? 0 + (Math.random() * 100 - 50), // Adjust the new node's position near the parent node
-          y: node?.y ?? 0 + (Math.random() * 100 - 50), // Adjust the new node's position near the parent node
-          difficulty: node.difficulty + 1, // Increase difficulty for new nodes
+          x: node?.x ?? 0 + (Math.random() * 100 - 50),
+          y: node?.y ?? 0 + (Math.random() * 100 - 50),
+          difficulty: node.difficulty + 1,
         } as TopicNode)
     );
 
@@ -126,17 +125,15 @@ export class GraphComponent implements OnInit {
     this.links = [...this.links, ...newLinks];
     this.expandedNodes.add(node.id);
 
-    // Re-render the graph to update the layout
     this.updateGraph(this.graphContainer.nativeElement, this.colorScale);
 
-    // Restart the simulation after adding new nodes and links
     this.simulation?.nodes(this.nodes as any);
     this.simulation?.force(
       'link',
       d3
         .forceLink(this.links)
         .id((d: any) => d.id)
-        .distance(150)
+        .distance((d: any) => (d.source.type === 'parent' ? 300 : 100))
     );
     this.simulation?.alpha(1).restart();
   }
@@ -155,7 +152,6 @@ export class GraphComponent implements OnInit {
       (link) => link.source !== node.id && link.target !== node.id
     );
 
-    // Re-render the graph to update colors
     this.updateGraph(this.graphContainer.nativeElement, this.colorScale);
   }
 
@@ -164,7 +160,7 @@ export class GraphComponent implements OnInit {
     colorScale?: d3.ScaleLinear<string, string>
   ): void {
     const svg = d3.select(container).select('svg');
-    const graphGroup = svg.select('g'); // Get the group where elements will be transformed
+    const graphGroup = svg.select('g');
 
     const link = graphGroup
       .selectAll('.link')
