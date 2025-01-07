@@ -172,7 +172,7 @@ export class GraphComponent implements OnInit {
             .attr('font-size', '16px')
             .attr('fill', 'white')
             .style('font-weight', 'bold')
-            .style('font-family', 'Arial, sans-serif')
+            .attr('font-family', 'Press Start 2P')
             .style('text-shadow', '1px 1px 3px rgba(0, 0, 0, 0.5)')
             .text((d: any) => d.topic),
         (update) => update,

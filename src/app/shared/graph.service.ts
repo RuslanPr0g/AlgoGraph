@@ -133,6 +133,7 @@ export class GraphService {
       .attr('dx', 25)
       .attr('dy', 5)
       .attr('font-size', '12px')
+      .attr('font-family', 'Press Start 2P')
       .attr('fill', 'black')
       .text((d: any) => d.topic);
   }
