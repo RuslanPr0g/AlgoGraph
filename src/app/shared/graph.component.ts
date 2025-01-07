@@ -5,6 +5,7 @@ import { GraphDataService } from './graph-data.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { GraphModalComponent } from './graph-modal/graph-modal.component';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-graph',
@@ -33,9 +34,13 @@ export class GraphComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.updateData();
+    this.createGraph(this.nodes, this.links, this.graphContainer.nativeElement);
+  }
+
+  private updateData(): void {
     this.nodes = this.graphDataService.getGraphNodes();
     this.links = this.graphDataService.getLinks(this.nodes);
-    this.createGraph(this.nodes, this.links, this.graphContainer.nativeElement);
   }
 
   private createGraph(
@@ -94,9 +99,30 @@ export class GraphComponent implements OnInit {
         height: '40%',
       });
 
-      dialogRef.afterClosed().subscribe(() => {
-        this.updateGraph(this.graphContainer.nativeElement, this.colorScale);
-      });
+      dialogRef
+        .afterClosed()
+        .pipe(take(1))
+        .subscribe(() => {
+          this.updateData();
+
+          this.updateGraph(this.graphContainer.nativeElement, this.colorScale);
+
+          // Restart simulation to apply updates
+          this.simulation?.nodes(this.nodes as any);
+          this.simulation?.force(
+            'link',
+            d3
+              .forceLink(this.links)
+              .id((d: any) => d.id)
+              .distance((d: any) => (d.source.type === 'parent' ? 300 : 100))
+          );
+          this.simulation?.alpha(1).restart();
+          this.expandedNodes.clear();
+
+          if (node.parentNode) {
+            this.onGraphNodeClick(node.parentNode, container);
+          }
+        });
     }
   }
 
@@ -115,6 +141,7 @@ export class GraphComponent implements OnInit {
           y: node?.y ?? 0 + (Math.random() * 100 - 50),
           difficulty: node.id + 1,
           problem: child.problem,
+          parentNode: node,
         } as GraphNode)
     );
 

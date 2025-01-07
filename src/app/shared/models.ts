@@ -3,6 +3,7 @@ export interface GraphNode extends d3.SimulationNodeDatum {
   name: string;
   type: 'parent' | 'child';
   problem?: Problem;
+  parentNode?: GraphNode;
 }
 
 export interface Link {
