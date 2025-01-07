@@ -23,53 +23,53 @@ export class GraphService {
 
   problems: { [key: string]: Node[] } = {
     'Arrays & Strings': [
-      { id: 1, name: 'Two Sum' },
-      { id: 2, name: 'Best Time to Buy and Sell Stock' },
-      { id: 3, name: 'Rotate Image' },
+      { id: 1, name: 'Two Sum', type: 'child' },
+      { id: 2, name: 'Best Time to Buy and Sell Stock', type: 'child' },
+      { id: 3, name: 'Rotate Image', type: 'child' },
     ],
     'Hashmaps & Sets': [
-      { id: 4, name: 'Contains Duplicate' },
-      { id: 5, name: 'Group Anagrams' },
+      { id: 4, name: 'Contains Duplicate', type: 'child' },
+      { id: 5, name: 'Group Anagrams', type: 'child' },
     ],
     '2 Pointers': [
-      { id: 6, name: 'Container With Most Water' },
-      { id: 7, name: '3Sum' },
+      { id: 6, name: 'Container With Most Water', type: 'child' },
+      { id: 7, name: '3Sum', type: 'child' },
     ],
     'Stacks': [
-      { id: 8, name: 'Valid Parentheses' },
-      { id: 9, name: 'Evaluate Reverse Polish Notation' },
+      { id: 8, name: 'Valid Parentheses', type: 'child' },
+      { id: 9, name: 'Evaluate Reverse Polish Notation', type: 'child' },
     ],
     'Linked Lists': [
-      { id: 10, name: 'Add Two Numbers' },
-      { id: 11, name: 'Reverse Linked List' },
+      { id: 10, name: 'Add Two Numbers', type: 'child' },
+      { id: 11, name: 'Reverse Linked List', type: 'child' },
     ],
     'Binary Search': [
-      { id: 12, name: 'Binary Search' },
-      { id: 13, name: 'Search in Rotated Sorted Array' },
+      { id: 12, name: 'Binary Search', type: 'child' },
+      { id: 13, name: 'Search in Rotated Sorted Array', type: 'child' },
     ],
     'Sliding Window': [
-      { id: 14, name: 'Longest Substring Without Repeating Characters' },
-      { id: 15, name: 'Minimum Window Substring' },
+      { id: 14, name: 'Longest Substring Without Repeating Characters', type: 'child' },
+      { id: 15, name: 'Minimum Window Substring', type: 'child' },
     ],
     'Trees': [
-      { id: 16, name: 'Maximum Depth of Binary Tree' },
-      { id: 17, name: 'Validate Binary Search Tree' },
+      { id: 16, name: 'Maximum Depth of Binary Tree', type: 'child' },
+      { id: 17, name: 'Validate Binary Search Tree', type: 'child' },
     ],
     'Heaps': [
-      { id: 18, name: 'Merge k Sorted Lists' },
-      { id: 19, name: 'Top K Frequent Elements' },
+      { id: 18, name: 'Merge k Sorted Lists', type: 'child' },
+      { id: 19, name: 'Top K Frequent Elements', type: 'child' },
     ],
     'Recursive Backtracking': [
-      { id: 20, name: 'Permutations' },
-      { id: 21, name: 'Combination Sum' },
+      { id: 20, name: 'Permutations', type: 'child' },
+      { id: 21, name: 'Combination Sum', type: 'child' },
     ],
     'Graphs': [
-      { id: 22, name: 'Number of Islands' },
-      { id: 23, name: 'Clone Graph' },
+      { id: 22, name: 'Number of Islands', type: 'child' },
+      { id: 23, name: 'Clone Graph', type: 'child' },
     ],
     'Dynamic Programming': [
-      { id: 24, name: 'Climbing Stairs' },
-      { id: 25, name: 'House Robber' },
+      { id: 24, name: 'Climbing Stairs', type: 'child' },
+      { id: 25, name: 'House Robber', type: 'child' },
     ],
   };
 
@@ -83,6 +83,7 @@ export class GraphService {
       name: `TopicNode ${index + 1}`,
       topic: topic,
       difficulty: 0,
+      type: 'parent',
       x: Math.random() * window.innerWidth, // Responsive random initial position
       y: Math.random() * window.innerHeight, // Responsive random initial position
       vx: 0,
