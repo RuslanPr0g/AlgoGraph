@@ -2,12 +2,16 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { Link, TopicNode, Node } from './models';
 import { GraphDataService } from './graph-data.service';
+import { MatDialog } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { GraphModalComponent } from './graph-modal/graph-modal.component';
 
 @Component({
   selector: 'app-graph',
   standalone: true,
   templateUrl: './graph.component.html',
   styleUrls: ['./graph.component.scss'],
+  imports: [CommonModule],
 })
 export class GraphComponent implements OnInit {
   @ViewChild('graphContainer', { static: true })
@@ -23,7 +27,10 @@ export class GraphComponent implements OnInit {
 
   private expandedNodes = new Set<number>(); // Tracks expanded nodes
 
-  constructor(private graphDataService: GraphDataService) {}
+  constructor(
+    private graphDataService: GraphDataService,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.nodes = this.graphDataService.getTopicNodes();
@@ -73,7 +80,13 @@ export class GraphComponent implements OnInit {
       }
       this.updateGraph(container, this.colorScale);
     } else {
-      alert('IT IS A CHILD');
+      this.dialog.open(GraphModalComponent, {
+        data: {
+          node,
+        },
+        width: '70%',
+        height: '70%',
+      });
     }
   }
 
@@ -81,8 +94,6 @@ export class GraphComponent implements OnInit {
     const relatedProblems = this.graphDataService.getProblemsForTopic(
       node.topic
     );
-
-    console.warn(node);
 
     const newTopicNodes = relatedProblems.map(
       (problem, index) =>

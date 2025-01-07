@@ -1,0 +1,11 @@
+::ng-deep mat-dialog-container {
+    background-color: #333 !important;
+
+    * {
+        color: #fefefe;
+    }
+}
+
+::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+    background-color: #333 !important;
+}
