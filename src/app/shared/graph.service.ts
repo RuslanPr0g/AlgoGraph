@@ -82,6 +82,7 @@ export class GraphService {
       id: index + 1,
       name: `TopicNode ${index + 1}`,
       topic: topic,
+      difficulty: 0,
       x: Math.random() * window.innerWidth, // Responsive random initial position
       y: Math.random() * window.innerHeight, // Responsive random initial position
       vx: 0,

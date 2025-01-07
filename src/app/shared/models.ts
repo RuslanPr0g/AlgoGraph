@@ -5,6 +5,7 @@ export interface Node extends d3.SimulationNodeDatum {
 
 export interface TopicNode extends Node {
   topic: string;
+  difficulty: number;
 }
 
 export interface Link {
