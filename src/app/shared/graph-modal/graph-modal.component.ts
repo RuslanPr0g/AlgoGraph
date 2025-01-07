@@ -11,6 +11,7 @@ import {
   MatDialogContent,
   MatDialogRef,
 } from '@angular/material/dialog';
+import { PrimaryButtonComponent } from '../../common/primary-button/primary-button.component';
 
 export interface GraphDialogData {
   node: GraphNode;
@@ -30,6 +31,7 @@ export interface GraphDialogData {
     MatDialogContent,
     MatDialogActions,
     MatDialogClose,
+    PrimaryButtonComponent,
   ],
 })
 export class GraphModalComponent {
