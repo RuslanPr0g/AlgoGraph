@@ -65,12 +65,16 @@ export class GraphComponent implements OnInit {
   }
 
   private onTopicNodeClick(node: TopicNode, container: HTMLElement): void {
-    if (this.expandedNodes.has(node.id)) {
-      this.collapseNode(node);
+    if (node.type === 'parent') {
+      if (this.expandedNodes.has(node.id)) {
+        this.collapseNode(node);
+      } else {
+        this.expandNode(node);
+      }
+      this.updateGraph(container, this.colorScale);
     } else {
-      this.expandNode(node);
+      alert('IT IS A CHILD');
     }
-    this.updateGraph(container, this.colorScale);
   }
 
   private expandNode(node: TopicNode): void {
