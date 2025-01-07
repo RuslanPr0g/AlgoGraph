@@ -20,7 +20,7 @@ export class GraphComponent implements OnInit {
 
   nodes: GraphNode[] = [];
   links: Link[] = [];
-  savedPositions: Record<number, { x: number; y: number }> = {}; // Keeps track of node positions
+  savedPositions: Record<number, { x: number; y: number }> = {};
   width: number = window.innerWidth;
   height: number = window.innerHeight;
 
@@ -61,19 +61,36 @@ export class GraphComponent implements OnInit {
     links: Link[],
     container: HTMLElement
   ): void {
+    const zoom = d3
+      .zoom()
+      .scaleExtent([0.1, 10])
+      .on('zoom', (event) => svg.attr('transform', event.transform)) as any;
+
     const svg = d3
       .select(container)
       .append('svg')
       .attr('width', this.width)
       .attr('height', this.height)
       .style('background-color', '#121212')
-      .call(
-        d3
-          .zoom()
-          .scaleExtent([0.1, 10])
-          .on('zoom', (event) => svg.attr('transform', event.transform)) as any
-      )
+      .call(zoom)
       .append('g');
+
+    const initialScale = 0.6;
+    const initialTranslate: [number, number] = [
+      this.width / 4,
+      this.height / 4,
+    ];
+    svg.attr(
+      'transform',
+      `translate(${initialTranslate[0]}, ${initialTranslate[1]}) scale(${initialScale})`
+    );
+
+    d3.select(container)
+      .select('svg')
+      .call(
+        zoom.transform,
+        d3.zoomIdentity.translate(...initialTranslate).scale(initialScale)
+      );
 
     this.colorScale = d3
       .scaleLinear<string>()
