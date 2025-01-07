@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { Link, TopicNode, Node } from './models';
+import { Link, TopicNode } from './models';
 import { GraphDataService } from './graph-data.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -48,7 +48,14 @@ export class GraphComponent implements OnInit {
       .append('svg')
       .attr('width', this.width)
       .attr('height', this.height)
-      .style('background-color', '#121212');
+      .style('background-color', '#121212')
+      .call(
+        d3
+          .zoom()
+          .scaleExtent([0.1, 10]) // Define the zoom limits
+          .on('zoom', (event) => svg.attr('transform', event.transform)) as any // Apply zoom and pan transformation
+      )
+      .append('g'); // Add group to apply transformations to
 
     // Create a color scale for difficulty
     this.colorScale = d3
@@ -148,8 +155,8 @@ export class GraphComponent implements OnInit {
       (link) => link.source !== node.id && link.target !== node.id
     );
 
-    // this.expandedNodes.delete(node.id);
-    this.updateGraph(this.graphContainer.nativeElement, this.colorScale); // Re-render the graph to update colors
+    // Re-render the graph to update colors
+    this.updateGraph(this.graphContainer.nativeElement, this.colorScale);
   }
 
   private updateGraph(
@@ -157,8 +164,9 @@ export class GraphComponent implements OnInit {
     colorScale?: d3.ScaleLinear<string, string>
   ): void {
     const svg = d3.select(container).select('svg');
+    const graphGroup = svg.select('g'); // Get the group where elements will be transformed
 
-    const link = svg
+    const link = graphGroup
       .selectAll('.link')
       .data(this.links)
       .join(
@@ -182,7 +190,7 @@ export class GraphComponent implements OnInit {
       return node.type === 'child' ? 20 : 25;
     };
 
-    const nodeSelection = svg
+    const nodeSelection = graphGroup
       .selectAll('.node')
       .data(this.nodes)
       .join(
@@ -209,7 +217,7 @@ export class GraphComponent implements OnInit {
         (exit) => exit.remove()
       );
 
-    const labels = svg
+    const labels = graphGroup
       .selectAll('.node-label')
       .data(this.nodes)
       .join(
