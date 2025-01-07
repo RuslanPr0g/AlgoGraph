@@ -104,7 +104,7 @@ export class GraphComponent implements OnInit {
         d3
           .forceLink(links)
           .id((d: any) => d.id)
-          .distance((d: any) => (d.source.type === 'parent' ? 300 : 100))
+          .distance((d: any) => (d.source.type === 'parent' ? 500 : 100))
       )
       .force('charge', d3.forceManyBody().strength(-200))
       .force('center', d3.forceCenter(this.width / 2, this.height / 2));
@@ -143,7 +143,7 @@ export class GraphComponent implements OnInit {
             d3
               .forceLink(this.links)
               .id((d: any) => d.id)
-              .distance((d: any) => (d.source.type === 'parent' ? 300 : 100))
+              .distance((d: any) => (d.source.type === 'parent' ? 500 : 100))
           );
           this.simulation?.alpha(1).restart();
           this.expandedNodes.clear();
@@ -194,7 +194,7 @@ export class GraphComponent implements OnInit {
       d3
         .forceLink(this.links)
         .id((d: any) => d.id)
-        .distance((d: any) => (d.source.type === 'parent' ? 300 : 100))
+        .distance((d: any) => (d.source.type === 'parent' ? 500 : 100))
     );
     this.simulation?.alpha(1).restart();
   }
