@@ -2,7 +2,7 @@ import { Component, inject, Input, model } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
-import { TopicNode } from '../models';
+import { GraphNode } from '../models';
 import { CommonModule } from '@angular/common';
 import {
   MAT_DIALOG_DATA,
@@ -13,7 +13,7 @@ import {
 } from '@angular/material/dialog';
 
 export interface GraphDialogData {
-  node: TopicNode;
+  node: GraphNode;
 }
 
 @Component({
@@ -37,7 +37,9 @@ export class GraphModalComponent {
   readonly data = inject<GraphDialogData>(MAT_DIALOG_DATA);
   readonly node = model(this.data.node);
 
-  @Input() selectedNode?: TopicNode;
+  ngOnInit(): void {
+    console.warn(this.node());
+  }
 
   close() {
     this.dialogRef.close();

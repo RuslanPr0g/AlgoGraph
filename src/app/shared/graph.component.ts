@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { Link, TopicNode } from './models';
+import { Link, GraphNode } from './models';
 import { GraphDataService } from './graph-data.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -17,7 +17,7 @@ export class GraphComponent implements OnInit {
   @ViewChild('graphContainer', { static: true })
   graphContainer!: ElementRef<HTMLElement>;
 
-  nodes: TopicNode[] = [];
+  nodes: GraphNode[] = [];
   links: Link[] = [];
   width: number = window.innerWidth;
   height: number = window.innerHeight;
@@ -33,13 +33,13 @@ export class GraphComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.nodes = this.graphDataService.getTopicNodes();
+    this.nodes = this.graphDataService.getGraphNodes();
     this.links = this.graphDataService.getLinks(this.nodes);
     this.createGraph(this.nodes, this.links, this.graphContainer.nativeElement);
   }
 
   private createGraph(
-    nodes: TopicNode[],
+    nodes: GraphNode[],
     links: Link[],
     container: HTMLElement
   ): void {
@@ -77,7 +77,7 @@ export class GraphComponent implements OnInit {
     this.updateGraph(container, this.colorScale);
   }
 
-  private onTopicNodeClick(node: TopicNode, container: HTMLElement): void {
+  private onGraphNodeClick(node: GraphNode, container: HTMLElement): void {
     if (node.type === 'parent') {
       if (this.expandedNodes.has(node.id)) {
         this.collapseNode(node);
@@ -86,6 +86,7 @@ export class GraphComponent implements OnInit {
       }
       this.updateGraph(container, this.colorScale);
     } else {
+      console.warn(node);
       this.dialog.open(GraphModalComponent, {
         data: {
           node,
@@ -96,24 +97,25 @@ export class GraphComponent implements OnInit {
     }
   }
 
-  private expandNode(node: TopicNode): void {
+  private expandNode(node: GraphNode): void {
     const relatedProblems = this.graphDataService.getProblemsForTopic(
-      node.topic
+      node.name
     );
 
-    const newTopicNodes = relatedProblems.map(
-      (problem, index) =>
+    const newGraphNodes = relatedProblems.map(
+      (child, index) =>
         ({
           id: this.nodes.length + index,
-          topic: problem.name,
-          type: problem.type,
+          name: child.name,
+          type: child.type,
           x: node?.x ?? 0 + (Math.random() * 100 - 50),
           y: node?.y ?? 0 + (Math.random() * 100 - 50),
-          difficulty: node.difficulty + 1,
-        } as TopicNode)
+          difficulty: node.id + 1,
+          problem: child.problem,
+        } as GraphNode)
     );
 
-    const newLinks = newTopicNodes.map(
+    const newLinks = newGraphNodes.map(
       (newNode) =>
         ({
           source: node.id,
@@ -121,7 +123,7 @@ export class GraphComponent implements OnInit {
         } as Link)
     );
 
-    this.nodes = [...this.nodes, ...newTopicNodes];
+    this.nodes = [...this.nodes, ...newGraphNodes];
     this.links = [...this.links, ...newLinks];
     this.expandedNodes.add(node.id);
 
@@ -138,7 +140,7 @@ export class GraphComponent implements OnInit {
     this.simulation?.alpha(1).restart();
   }
 
-  private collapseNode(node: TopicNode): void {
+  private collapseNode(node: GraphNode): void {
     const connectedLinks = this.links.filter(
       (link) => link.source === node.id || link.target === node.id
     );
@@ -176,13 +178,13 @@ export class GraphComponent implements OnInit {
         (exit) => exit.remove()
       );
 
-    const getColorForNode = (node: TopicNode) => {
+    const getColorForNode = (node: GraphNode) => {
       return node.type === 'child'
         ? '#727D73'
-        : colorScale?.(node.difficulty) || '#1f77b4';
+        : colorScale?.(node.id) || '#1f77b4';
     };
 
-    const getSizeForNode = (node: TopicNode) => {
+    const getSizeForNode = (node: GraphNode) => {
       return node.type === 'child' ? 20 : 25;
     };
 
@@ -199,7 +201,7 @@ export class GraphComponent implements OnInit {
             .attr('cursor', 'pointer')
             .call(
               d3
-                .drag<SVGCircleElement, TopicNode>()
+                .drag<SVGCircleElement, GraphNode>()
                 .on('start', (event, d) =>
                   this.dragStarted(event, d, this.simulation)
                 )
@@ -208,7 +210,7 @@ export class GraphComponent implements OnInit {
                   this.dragEnded(event, d, this.simulation)
                 )
             )
-            .on('click', (event, d) => this.onTopicNodeClick(d, container)),
+            .on('click', (event, d) => this.onGraphNodeClick(d, container)),
         (update) => update.attr('fill', (d: any) => getColorForNode(d)),
         (exit) => exit.remove()
       );
@@ -228,7 +230,7 @@ export class GraphComponent implements OnInit {
             .style('font-weight', 'bold')
             .attr('font-family', 'Press Start 2P')
             .style('text-shadow', '1px 1px 3px rgba(0, 0, 0, 0.5)')
-            .text((d: any) => d.topic),
+            .text((d: any) => d.name),
         (update) => update,
         (exit) => exit.remove()
       );
