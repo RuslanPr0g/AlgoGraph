@@ -36,7 +36,13 @@ export class GraphDataService {
   }
 
   getProblemsForTopic(topic: string): Node[] {
-    return this.problemService.problems[topic].map((problem, index) => ({
+    const problems = this.problemService.problems[topic];
+
+    if (!problems || problems?.length === 0) {
+      return [];
+    }
+
+    return problems.map((problem, index) => ({
       id: index,
       name: problem,
       type: 'child',

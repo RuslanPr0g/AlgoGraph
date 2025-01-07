@@ -17,6 +17,7 @@ export class ProblemService {
     'Recursive Backtracking',
     'Graphs',
     'Dynamic Programming',
+    'Finish!',
   ];
 
   problems: { [key: string]: string[] } = {

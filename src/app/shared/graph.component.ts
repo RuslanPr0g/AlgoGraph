@@ -82,14 +82,16 @@ export class GraphComponent implements OnInit {
       node.topic
     );
 
+    console.warn(node);
+
     const newTopicNodes = relatedProblems.map(
       (problem, index) =>
         ({
           id: this.nodes.length + index, // Ensure unique IDs
           topic: problem.name,
           type: problem.type,
-          x: node.x, // Start new nodes near the clicked node
-          y: node.y,
+          x: node?.x ?? 0 + (Math.random() * 100 - 50), // Adjust the new node's position near the parent node
+          y: node?.y ?? 0 + (Math.random() * 100 - 50), // Adjust the new node's position near the parent node
           difficulty: node.difficulty + 1, // Increase difficulty for new nodes
         } as TopicNode)
     );
@@ -105,7 +107,20 @@ export class GraphComponent implements OnInit {
     this.nodes = [...this.nodes, ...newTopicNodes];
     this.links = [...this.links, ...newLinks];
     this.expandedNodes.add(node.id);
-    this.updateGraph(this.graphContainer.nativeElement, this.colorScale); // Re-render the graph to update colors
+
+    // Re-render the graph to update the layout
+    this.updateGraph(this.graphContainer.nativeElement, this.colorScale);
+
+    // Restart the simulation after adding new nodes and links
+    this.simulation?.nodes(this.nodes as any);
+    this.simulation?.force(
+      'link',
+      d3
+        .forceLink(this.links)
+        .id((d: any) => d.id)
+        .distance(150)
+    );
+    this.simulation?.alpha(1).restart();
   }
 
   private collapseNode(node: TopicNode): void {
@@ -202,16 +217,6 @@ export class GraphComponent implements OnInit {
         (update) => update,
         (exit) => exit.remove()
       );
-
-    this.simulation?.nodes(this.nodes as any);
-    this.simulation?.force(
-      'link',
-      d3
-        .forceLink(this.links)
-        .id((d: any) => d.id)
-        .distance(150)
-    );
-    this.simulation?.alpha(1).restart();
 
     this.simulation?.on('tick', () => {
       link
